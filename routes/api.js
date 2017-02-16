@@ -70,6 +70,22 @@ router.get('/packages/:id/:version', function (req, res) {
 
 //// /developers endpoints
 
+/* GET all the developers. */
+router.get('/developers', function (req, res) {
+    request = new Request("SELECT Name FROM dbo.Developers;", function (err, rowCount, rows) {
+        if (err) {
+            console.log(err);
+            res.send(JSON.stringify([]));
+        } else {
+            res.send(JSON.stringify(rows.map(function (columns) {
+                return columns[0].value;
+            })));
+        }
+    });
+    connection.execSql(request);
+});
+
+//POST for registering a developer
 router.post('/developers', function (req, res) {
     request = new Request("INSERT INTO dbo.Developers VALUES (@Name, @Password, @Email);", function (err, rowCount, rows) {
         if (err) {
