@@ -1,6 +1,6 @@
 ﻿var express = require('express');
 var router = express.Router();
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-nodejs');
 
 var Connection = require('tedious').Connection;
 var config = {
@@ -96,7 +96,7 @@ router.post('/developers', function (req, res) {
     });
     request.addParameter('Name', TYPES.NVarChar, req.body.name);
     request.addParameter('Email', TYPES.NVarChar, req.body.email);
-    bcrypt.hash(req.body.password, 10, function (err, hash) { //Hash async to avoid blocking the CPU
+    bcrypt.hash(req.body.password, bcrypt.genSaltSync(), function (err, hash) { //Hash async to avoid blocking the CPU
         request.addParameter('Password', TYPES.NVarChar, hash);
         connection.execSql(request);
     });
