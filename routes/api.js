@@ -143,7 +143,7 @@ router.post('/developers', function (req, res) {
     bcrypt.hash(req.body.password, bcrypt.genSaltSync(), function (err, hash) { //Hash async to avoid blocking the CPU
         request.addParameter('Password', TYPES.NVarChar, hash);
         connection.execSql(request);
-    });
+    },null);
 });
 
 
