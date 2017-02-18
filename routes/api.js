@@ -67,6 +67,50 @@ router.get('/packages/:id/:version', function (req, res) {
     connection.execSql(request);
 });
 
+//POST for publishing a package
+router.post('/packages/:id/:version', function (req, res) {
+    request = new Request("SELECT DISTINCT Author FROM dbo.Packages WHERE Id=@Id;", function (err, rowCount, rows) {
+        if (rows.length == 0 || rows[0][0].value == req.body.username) {
+            //Only allow to publish new packages or update packages published by that users
+            checkPassword(req.body.username, req.body.password, function (auth) {
+                if (auth) {
+                    request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source);", function (err, rowCount, rows) {
+                        if (err) {
+                            res.send(JSON.stringify({ res: "ERROR", err: err }));
+                        } else {
+                            res.send(JSON.stringify({ res: "OK" }));
+                        }
+                    });
+                    request.addParameter('Id', TYPES.NVarChar, req.params.id);
+                    request.addParameter('Version', TYPES.NVarChar, req.params.version);
+                    request.addParameter('Date', TYPES.DateTime, new Date());
+                    request.addParameter('Author', TYPES.NVarChar, req.body.username);
+                    request.addParameter('Source', TYPES.NVarChar, req.body.source);
+                } else {
+                    res.send(JSON.stringify({ res: "ERROR", err: "The username or password is invalid" }));
+                }
+            });
+        } else {
+            res.send(JSON.stringify({ res: "ERROR", err: "Only the original author is allowed to update the package" }));
+        }
+    });
+    request.addParameter('Id', TYPES.NVarChar, req.params.id);
+    connection.execSql(request);
+});
+
+function checkPassword(user, password, callback) {
+    request = new Request("SELECT Password FROM dbo.Developers WHERE Name=@Name;", function (err, rowCount, rows) {
+        if (rows.length == 0) {
+            callback(false);
+        } else {
+            bcrypt.compare(password, rows[0][0].value, function (err, res) {
+                callback(res);
+            });
+        }
+    });
+    request.addParameter('Name', TYPES.NVarChar, user);
+    connection.execSql(request);
+}
 
 //// /developers endpoints
 
@@ -89,9 +133,9 @@ router.get('/developers', function (req, res) {
 router.post('/developers', function (req, res) {
     request = new Request("INSERT INTO dbo.Developers VALUES (@Name, @Password, @Email);", function (err, rowCount, rows) {
         if (err) {
-            res.send(JSON.stringify({rest:"ERROR",err:err}));
+            res.send(JSON.stringify({ res: "ERROR", err: err }));
         } else {
-            res.send(JSON.stringify({rest:"OK"}));
+            res.send(JSON.stringify({ res: "OK" }));
         }
     });
     request.addParameter('Name', TYPES.NVarChar, req.body.name);
