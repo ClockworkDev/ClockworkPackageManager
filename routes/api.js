@@ -69,14 +69,14 @@ router.get('/packages/:id/:version', function (req, res) {
 
 //POST for publishing a package
 router.post('/packages/:id/:version', function (req, res) {
-    console.log("trying to publish "+req.params.id + " as" +req.body.username);
+    console.log("trying to publish " + req.params.id + " as" + req.body.username);
     request = new Request("SELECT DISTINCT Author FROM dbo.Packages WHERE Id=@Id;", function (err, rowCount, rows) {
         if (rows.length == 0 || rows[0][0].value == req.body.username) {
             console.log("this user can publish");
             //Only allow to publish new packages or update packages published by that users
             checkPassword(req.body.username, req.body.password, function (auth) {
                 if (auth) {
-                    console.log(req.body.password +" is the valid password, lets insert");
+                    console.log(req.body.password + " is the valid password, lets insert");
                     request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source);", function (err, rowCount, rows) {
                         if (err) {
                             res.send(JSON.stringify({ res: "ERROR", err: err }));
@@ -89,6 +89,7 @@ router.post('/packages/:id/:version', function (req, res) {
                     request.addParameter('Date', TYPES.DateTime, new Date());
                     request.addParameter('Author', TYPES.NVarChar, req.body.username);
                     request.addParameter('Source', TYPES.NVarChar, req.body.source);
+                    connection.execSql(request);
                 } else {
                     res.send(JSON.stringify({ res: "ERROR", err: "The username or password is invalid" }));
                 }
@@ -143,7 +144,7 @@ router.post('/developers', function (req, res) {
     });
     request.addParameter('Name', TYPES.NVarChar, req.body.name);
     request.addParameter('Email', TYPES.NVarChar, req.body.email);
-    bcrypt.hash(req.body.password, bcrypt.genSaltSync(),null, function (err, hash) { //Hash async to avoid blocking the CPU
+    bcrypt.hash(req.body.password, bcrypt.genSaltSync(), null, function (err, hash) { //Hash async to avoid blocking the CPU
         request.addParameter('Password', TYPES.NVarChar, hash);
         connection.execSql(request);
     });
