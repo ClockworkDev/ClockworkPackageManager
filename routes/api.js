@@ -69,11 +69,14 @@ router.get('/packages/:id/:version', function (req, res) {
 
 //POST for publishing a package
 router.post('/packages/:id/:version', function (req, res) {
+    console.log("trying to publish "+req.params.id + " as" +req.body.username);
     request = new Request("SELECT DISTINCT Author FROM dbo.Packages WHERE Id=@Id;", function (err, rowCount, rows) {
         if (rows.length == 0 || rows[0][0].value == req.body.username) {
+            console.log("this user can publish");
             //Only allow to publish new packages or update packages published by that users
             checkPassword(req.body.username, req.body.password, function (auth) {
                 if (auth) {
+                    console.log(req.body.password +" is the valid password, lets insert");
                     request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source);", function (err, rowCount, rows) {
                         if (err) {
                             res.send(JSON.stringify({ res: "ERROR", err: err }));
