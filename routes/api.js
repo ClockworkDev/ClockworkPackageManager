@@ -1,6 +1,7 @@
 ﻿var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt-nodejs');
+var geardoc = require('geardoc');
 
 var Connection = require('tedious').Connection;
 var config = {
@@ -59,7 +60,8 @@ router.get('/packages/:id/:version', function (req, res) {
             console.log(err);
             res.send("");
         } else {
-            res.send(rows[0][0].value);
+            res.
+            res.send(geardoc.generateDoc(rows[0][0].value));
         }
     });
     request.addParameter('Id', TYPES.NVarChar, req.params.id);
@@ -112,6 +114,24 @@ function checkPassword(user, password, callback) {
     request.addParameter('Name', TYPES.NVarChar, user);
     connection.execSql(request);
 }
+
+/// /doc endpoints
+
+/* GET the source for a package id + version */
+router.get('/doc/:id/:version', function (req, res) {
+    request = new Request("SELECT Source FROM dbo.Packages WHERE Id=@Id AND Version=@Version;", function (err, rowCount, rows) {
+        if (err || rowCount != 1) {
+            console.log(err);
+            res.send("");
+        } else {
+            res.type('html'); 
+            res.send(rows[0][0].value);
+        }
+    });
+    request.addParameter('Id', TYPES.NVarChar, req.params.id);
+    request.addParameter('Version', TYPES.NVarChar, req.params.version);
+    connection.execSql(request);
+});
 
 //// /developers endpoints
 
