@@ -60,8 +60,7 @@ router.get('/packages/:id/:version', function (req, res) {
             console.log(err);
             res.send("");
         } else {
-            res.
-            res.send(geardoc.generateDoc(rows[0][0].value));
+            res.send(rows[0][0].value);
         }
     });
     request.addParameter('Id', TYPES.NVarChar, req.params.id);
@@ -125,7 +124,7 @@ router.get('/doc/:id/:version', function (req, res) {
             res.send("");
         } else {
             res.type('html'); 
-            res.send(rows[0][0].value);
+            res.send(geardoc.generateDoc(rows[0][0].value));
         }
     });
     request.addParameter('Id', TYPES.NVarChar, req.params.id);
