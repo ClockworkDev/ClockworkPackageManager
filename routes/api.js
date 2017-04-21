@@ -85,6 +85,12 @@ router.post('/packages/:id/:version', function (req, res) {
                                         res.send(JSON.stringify({ res: "OK" }));
                                     }
                                 });
+                                request.addParameter('Id', TYPES.NVarChar, req.params.id);
+                                request.addParameter('Version', TYPES.NVarChar, req.params.version);
+                                request.addParameter('Date', TYPES.DateTime, new Date());
+                                request.addParameter('Author', TYPES.NVarChar, req.body.username);
+                                request.addParameter('Source', TYPES.NVarChar, req.body.source);
+                                connection.execSql(request);
                             } else {
                                 res.send(JSON.stringify({ res: "ERROR", err: err }));
                             }
