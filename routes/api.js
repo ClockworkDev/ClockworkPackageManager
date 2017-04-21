@@ -75,7 +75,7 @@ router.post('/packages/:id/:version', function (req, res) {
             //Only allow to publish new packages or update packages published by that users
             checkPassword(req.body.username, req.body.password, function (auth) {
                 if (auth) {
-                    request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source);", function (err, rowCount, rows) {
+                    request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source) ON DUPLICATE KEY UPDATE Date=@Date, Source=@Source;", function (err, rowCount, rows) {
                         if (err) {
                             res.send(JSON.stringify({ res: "ERROR", err: err }));
                         } else {
