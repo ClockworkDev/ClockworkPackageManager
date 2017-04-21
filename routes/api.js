@@ -76,6 +76,9 @@ router.post('/packages/:id/:version', function (req, res) {
             checkPassword(req.body.username, req.body.password, function (auth) {
                 if (auth) {
                     request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source) ON DUPLICATE KEY UPDATE Date=@Date, Source=@Source;", function (err, rowCount, rows) {
+                        console.log(err);
+                        console.log(rowCount);
+                        console.log(rows);
                         if (err) {
                             res.send(JSON.stringify({ res: "ERROR", err: err }));
                         } else {
