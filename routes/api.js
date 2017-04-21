@@ -79,6 +79,7 @@ router.post('/packages/:id/:version', function (req, res) {
                         if (err) {
                             if (rowCount == 0) {
                                 request = new Request("update dbo.Packages set Date=@Date, Source=@Source where Id=@Id, Version=@Version", function (err, rowCount, rows) {
+                                    console.log(err);
                                     if (err) {
                                         res.send(JSON.stringify({ res: "ERROR", err: err }));
                                     } else {
@@ -88,7 +89,6 @@ router.post('/packages/:id/:version', function (req, res) {
                                 request.addParameter('Id', TYPES.NVarChar, req.params.id);
                                 request.addParameter('Version', TYPES.NVarChar, req.params.version);
                                 request.addParameter('Date', TYPES.DateTime, new Date());
-                                request.addParameter('Author', TYPES.NVarChar, req.body.username);
                                 request.addParameter('Source', TYPES.NVarChar, req.body.source);
                                 connection.execSql(request);
                             } else {
