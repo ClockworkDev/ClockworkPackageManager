@@ -76,11 +76,18 @@ router.post('/packages/:id/:version', function (req, res) {
             checkPassword(req.body.username, req.body.password, function (auth) {
                 if (auth) {
                     request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source)", function (err, rowCount, rows) {
-                        console.log(err);
-                        console.log(rowCount);
-                        console.log(rows);
                         if (err) {
-                            res.send(JSON.stringify({ res: "ERROR", err: err }));
+                            if (rowCount == 0) {
+                                request = new Request("update dbo.Packages set Date=@Date, Source=@Source where Id=@Id, Version=@Version", function (err, rowCount, rows) {
+                                    if (err) {
+                                        res.send(JSON.stringify({ res: "ERROR", err: err }));
+                                    } else {
+                                        res.send(JSON.stringify({ res: "OK" }));
+                                    }
+                                });
+                            } else {
+                                res.send(JSON.stringify({ res: "ERROR", err: err }));
+                            }
                         } else {
                             res.send(JSON.stringify({ res: "OK" }));
                         }
@@ -126,7 +133,7 @@ router.get('/doc/:id/:version', function (req, res) {
             console.log(err);
             res.send("");
         } else {
-            res.type('html'); 
+            res.type('html');
             res.send(geardoc.generateDoc(rows[0][0].value));
         }
     });
