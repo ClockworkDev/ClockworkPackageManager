@@ -77,12 +77,8 @@ router.post('/packages/:id/:version', function (req, res) {
                 if (auth) {
                     request = new Request("INSERT INTO dbo.Packages VALUES (@Id, @Version, @Date, @Author, @Source)", function (err, rowCount, rows) {
                         if (err) {
-                            console.log(rowCount);
                             if (rowCount == 0) {
-                                console.log("updating row");
-                                request = new Request("update dbo.Packages set Date=@Date, Source=@Source where Id=@Id, Version=@Version", function (err, rowCount, rows) {
-                                    console.log(err);
-                                    console.log(rows);
+                                request = new Request("update dbo.Packages set Date=@Date, Source=@Source where Id=@Id AND Version=@Version", function (err, rowCount, rows) {
                                     if (err) {
                                         res.send(JSON.stringify({ res: "ERROR", err: err }));
                                     } else {
